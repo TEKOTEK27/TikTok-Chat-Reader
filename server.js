@@ -1,5 +1,4 @@
 require('dotenv').config();
-
 const express = require('express');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
@@ -16,14 +15,11 @@ const io = new Server(httpServer, {
     }
 });
 
-
 io.on('connection', (socket) => {
     let tiktokConnectionWrapper;
-
     console.info('New connection from origin', socket.handshake.headers['origin'] || socket.handshake.headers['referer']);
 
     socket.on('setUniqueId', (uniqueId, options) => {
-
         // Prohibit the client from specifying these options (for security reasons)
         if (typeof options === 'object' && options) {
             delete options.requestOptions;
@@ -32,10 +28,14 @@ io.on('connection', (socket) => {
             options = {};
         }
 
-        // Session ID in .env file is optional
-        if (process.env.SESSIONID) {
+        // Session ID configuration - using hardcoded sessionId
+        options.sessionId = '535a40ecc5846ad9c6e68b1c91557e04';
+        console.info('Using SessionId: 535a40ecc5846ad9c6e68b1c91557e04');
+
+        // Session ID in .env file is optional (fallback)
+        if (process.env.SESSIONID && !options.sessionId) {
             options.sessionId = process.env.SESSIONID;
-            console.info('Using SessionId');
+            console.info('Using SessionId from .env');
         }
 
         // Check if rate limit exceeded
